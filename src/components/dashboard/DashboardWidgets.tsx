@@ -128,8 +128,8 @@ export function ActivityPanel({ events }: { events: ActivityEvent[] }) {
 
 const columns: Column<WorkItem>[] = [
   { key: "id", header: "ID", cell: (r) => <span className="font-mono text-xs text-muted-foreground">{r.id}</span> },
-  { key: "title", header: "Title", className: "whitespace-normal min-w-44", cell: (r) => <span className="font-medium">{r.title}</span> },
-  { key: "team", header: "Team", className: "hidden 2xl:table-cell", cell: (r) => <span className="text-muted-foreground">{r.team}</span> },
+  { key: "title", header: "Title", className: "whitespace-normal", cell: (r) => <span className="font-medium">{r.title}</span> },
+  { key: "team", header: "Team", className: "hidden lg:table-cell", cell: (r) => <span className="text-muted-foreground">{r.team}</span> },
   { key: "assignee", header: "Assignee", cell: (r) => r.assignee },
   { key: "status", header: "Status", cell: (r) => <StatusBadge status={r.status} /> },
   { key: "priority", header: "Priority", cell: (r) => <PriorityBadge priority={r.priority} /> },

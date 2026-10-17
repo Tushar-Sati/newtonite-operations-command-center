@@ -31,13 +31,13 @@ function Dashboard() {
         </div>
       )}
       <KpiGrid kpis={data.kpis} />
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2"><WorkloadChart data={data.weekly} /></div>
-        <TeamWorkloadSummary teams={data.teams} />
-      </div>
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="min-w-0 lg:col-span-2"><WorkItemsOverview items={data.workItems} /></div>
+      <div className="grid gap-6 xl:grid-cols-3">
+        <div className="xl:col-span-2"><WorkloadChart data={data.weekly} /></div>
         <ActivityPanel events={data.activity} />
+      </div>
+      <div className="grid gap-6 xl:grid-cols-3">
+        <TeamWorkloadSummary teams={data.teams} />
+        <div className="min-w-0 xl:col-span-2"><WorkItemsOverview items={data.workItems} /></div>
       </div>
     </div>
   );
