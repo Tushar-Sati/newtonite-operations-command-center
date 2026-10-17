@@ -22,7 +22,7 @@ export function DataTable<T>({
   if (rows.length === 0 && empty) return <>{empty}</>;
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[720px] text-sm">
+      <table className="w-full min-w-[640px] text-sm">
         <thead>
           <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
             {columns.map((c) => (
