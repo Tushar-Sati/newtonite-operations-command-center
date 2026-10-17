@@ -1,9 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { Info } from "lucide-react";
 import { ActivityPanel, KpiGrid, TeamWorkloadSummary, WorkItemsOverview, WorkloadChart } from "@/components/dashboard/DashboardWidgets";
 import { ErrorState, Skeleton } from "@/components/common/States";
-import { dashboardQueryOptions, isUsingMockData } from "@/lib/api/dashboard";
+import { dashboardQueryOptions } from "@/lib/api/dashboard";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -14,22 +13,17 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Operations dashboard: workload, team capacity, approvals and recent activity." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(dashboardQueryOptions),
   pendingComponent: DashboardSkeleton,
   errorComponent: ({ error }) => <DashboardError message={error instanceof Error ? error.message : "Unknown error"} />,
   component: Dashboard,
 });
 
 function Dashboard() {
-  const { data } = useSuspenseQuery(dashboardQueryOptions);
+  const { data, isPending, error, refetch } = useQuery(dashboardQueryOptions);
+  if (isPending) return <DashboardSkeleton />;
+  if (error || !data) return <ErrorState message={error instanceof Error ? error.message : "Dashboard data is unavailable."} onRetry={() => void refetch()} />;
   return (
     <div className="space-y-6">
-      {isUsingMockData && (
-        <div className="flex items-center gap-2 rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs text-warning">
-          <Info className="h-3.5 w-3.5 shrink-0" />
-          Showing temporary sample data. No backend is connected yet.
-        </div>
-      )}
       <KpiGrid kpis={data.kpis} />
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2"><WorkloadChart data={data.weekly} /></div>

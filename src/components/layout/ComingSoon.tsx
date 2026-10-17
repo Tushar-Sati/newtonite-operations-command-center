@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/common/States";
 export function ComingSoon({ title }: { title: string }) {
   return (
     <Card>
-      <EmptyState title={`${title} isn't built yet`} description="This screen is planned for a later phase after the dashboard is reviewed." />
+      <EmptyState title={`${title} isn't connected yet`} description="The backend does not provide this resource yet, so this screen is unavailable." />
     </Card>
   );
 }

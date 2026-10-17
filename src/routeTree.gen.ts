@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as TeamsRouteImport } from './routes/teams'
 import { Route as WorkItemsRouteImport } from './routes/work-items'
 
@@ -30,6 +31,11 @@ const ApprovalsRoute = ApprovalsRouteImport.update({
   path: '/approvals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/approvals': typeof ApprovalsRoute
+  '/login': typeof LoginRoute
   '/teams': typeof TeamsRoute
   '/work-items': typeof WorkItemsRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/approvals': typeof ApprovalsRoute
+  '/login': typeof LoginRoute
   '/teams': typeof TeamsRoute
   '/work-items': typeof WorkItemsRoute
 }
@@ -60,21 +68,31 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/approvals': typeof ApprovalsRoute
+  '/login': typeof LoginRoute
   '/teams': typeof TeamsRoute
   '/work-items': typeof WorkItemsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/activity' | '/approvals' | '/teams' | '/work-items'
+  fullPaths:
+    '/' | '/activity' | '/approvals' | '/login' | '/teams' | '/work-items'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/activity' | '/approvals' | '/teams' | '/work-items'
-  id: '__root__' | '/' | '/activity' | '/approvals' | '/teams' | '/work-items'
+  to: '/' | '/activity' | '/approvals' | '/login' | '/teams' | '/work-items'
+  id:
+    | '__root__'
+    | '/'
+    | '/activity'
+    | '/approvals'
+    | '/login'
+    | '/teams'
+    | '/work-items'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
   ApprovalsRoute: typeof ApprovalsRoute
+  LoginRoute: typeof LoginRoute
   TeamsRoute: typeof TeamsRoute
   WorkItemsRoute: typeof WorkItemsRoute
 }
@@ -102,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApprovalsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teams': {
       id: '/teams'
       path: '/teams'
@@ -123,6 +148,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
   ApprovalsRoute: ApprovalsRoute,
+  LoginRoute: LoginRoute,
   TeamsRoute: TeamsRoute,
   WorkItemsRoute: WorkItemsRoute,
 }

@@ -145,11 +145,29 @@ const columns: Column<WorkItem>[] = [
   },
 ];
 
-export function WorkItemsOverview({ items }: { items: WorkItem[] }) {
+export function WorkItemsOverview({
+  items,
+  title = "Work items overview",
+  description = "Most recently updated items",
+  onOpen,
+  onClaim,
+}: {
+  items: WorkItem[];
+  title?: string;
+  description?: string;
+  onOpen?: (item: WorkItem) => void;
+  onClaim?: (item: WorkItem) => void;
+}) {
+  const displayColumns = columns.map((column) => column.key === "title" && onOpen
+    ? { ...column, cell: (row: WorkItem) => <button className="text-left font-medium hover:text-primary hover:underline" onClick={() => onOpen(row)}>{row.title}</button> }
+    : column);
+  if (onClaim) displayColumns.push({ key: "action", header: "Action", cell: (row: WorkItem) => row.status === "open" && row.assignee === "Unassigned"
+    ? <button className="text-xs font-medium text-primary hover:underline" onClick={() => onClaim(row)}>Claim</button>
+    : <span className="text-xs text-muted-foreground">—</span> });
   return (
     <Card>
-      <CardHeader title="Work items overview" description="Most recently updated items" />
-      <DataTable columns={columns} rows={items} rowKey={(r) => r.id} empty={<EmptyState title="No work items" description="Items will appear here once created." />} />
+      <CardHeader title={title} description={description} />
+      <DataTable columns={displayColumns} rows={items} rowKey={(r) => r.id} empty={<EmptyState title="No work items" description="Items will appear here once created." />} />
     </Card>
   );
 }

@@ -1,9 +1,11 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, Navigate, useRouterState } from "@tanstack/react-router";
 import { ChevronsLeft, ChevronsRight, Menu, Search } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/common/Button";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "./nav";
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { ErrorState, Skeleton } from "@/components/common/States";
 
 function Sidebar({ collapsed, onToggle, mobileOpen, onClose }: { collapsed: boolean; onToggle: () => void; mobileOpen: boolean; onClose: () => void }) {
   return (
@@ -48,7 +50,7 @@ function Sidebar({ collapsed, onToggle, mobileOpen, onClose }: { collapsed: bool
   );
 }
 
-function Topbar({ onMenu }: { onMenu: () => void }) {
+function Topbar({ onMenu, userName, onLogout }: { onMenu: () => void; userName: string; onLogout: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const title = NAV_ITEMS.find((n) => (n.to === "/" ? pathname === "/" : pathname.startsWith(n.to)))?.label ?? "Newtonite";
   return (
@@ -75,9 +77,10 @@ function Topbar({ onMenu }: { onMenu: () => void }) {
         <div className="flex items-center gap-2.5 rounded-md py-1 pl-1 pr-2">
           <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold text-primary">GU</div>
           <div className="hidden leading-tight lg:block">
-            <p className="text-sm font-medium">Guest user</p>
-            <p className="text-xs text-muted-foreground">Not signed in</p>
+            <p className="text-sm font-medium">{userName}</p>
+            <p className="text-xs text-muted-foreground">Signed in</p>
           </div>
+          <Button variant="ghost" size="sm" onClick={onLogout}>Sign out</Button>
         </div>
       </div>
     </header>
@@ -87,11 +90,17 @@ function Topbar({ onMenu }: { onMenu: () => void }) {
 export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { ready, user, error, retry, logout } = useAuth();
+  if (pathname === "/login") return <>{children}</>;
+  if (!ready) return <div className="min-h-screen p-6"><Skeleton className="h-14" /><Skeleton className="mt-6 h-80" /></div>;
+  if (error) return <div className="mx-auto max-w-xl p-8"><ErrorState message={error} onRetry={retry} /></div>;
+  if (!user) return <Navigate to="/login" replace />;
   return (
     <div className="min-h-screen">
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
       <div className={cn("transition-[padding] duration-200", collapsed ? "md:pl-16" : "md:pl-60")}>
-        <Topbar onMenu={() => setMobileOpen(true)} />
+        <Topbar onMenu={() => setMobileOpen(true)} userName={user.full_name} onLogout={logout} />
         <main className="mx-auto max-w-[1440px] p-4 md:p-6">{children}</main>
       </div>
     </div>

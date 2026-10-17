@@ -1,24 +1,44 @@
-// Data access for the Operations Dashboard.
-// UI components never import mock data directly — they go through this module.
-// To integrate FastAPI: set VITE_API_BASE_URL and the fetch below takes over.
 import { queryOptions } from "@tanstack/react-query";
-import { MOCK_DASHBOARD } from "./mock-data";
-import type { DashboardData } from "./types";
+import { requestJson } from "./client";
+import { DashboardResponseSchema, type ActivityEvent, type DashboardData } from "./types";
 
-const API_BASE = import.meta.env["VITE_API_BASE_URL"] as string | undefined;
-
-export async function fetchDashboard(): Promise<DashboardData> {
-  if (API_BASE) {
-    const res = await fetch(`${API_BASE}/dashboard`);
-    if (!res.ok) throw new Error(`Dashboard request failed (${res.status})`);
-    return (await res.json()) as DashboardData;
-  }
-  // TEMPORARY: mock data with simulated latency.
-  await new Promise((r) => setTimeout(r, 400));
-  return MOCK_DASHBOARD;
+export function adaptDashboard(input: unknown): DashboardData {
+  const response = DashboardResponseSchema.parse(input);
+  const activityKind = (kind: string): ActivityEvent["kind"] => {
+    if (kind === "created" || kind === "approved" || kind === "commented" || kind === "completed") return kind;
+    return "updated";
+  };
+  return {
+    kpis: {
+      openItems: response.kpis.open_items,
+      inProgressItems: response.kpis.in_progress_items,
+      overdueItems: response.kpis.overdue_items,
+      pendingApprovals: response.kpis.pending_approvals,
+      deltas: {
+        open: response.kpis.deltas.open,
+        inProgress: response.kpis.deltas.in_progress,
+        overdue: response.kpis.deltas.overdue,
+        approvals: response.kpis.deltas.approvals,
+      },
+    },
+    weekly: response.weekly,
+    teams: response.teams.map((team) => ({
+      teamId: team.team_id, team: team.team, members: team.members,
+      open: team.open, inProgress: team.in_progress, capacity: team.capacity,
+    })),
+    activity: response.activity.map((event) => ({ ...event, kind: activityKind(event.kind) })),
+    workItems: response.work_items.map((item) => ({
+      id: item.id, title: item.title, team: item.team, assignee: item.assignee,
+      status: item.status, priority: item.priority,
+      dueDate: item.due_date ?? "", overdue: item.overdue,
+    })),
+  };
 }
 
-export const isUsingMockData = !API_BASE;
+export async function fetchDashboard(): Promise<DashboardData> {
+  const response = await requestJson("/dashboard", DashboardResponseSchema);
+  return adaptDashboard(response);
+}
 
 export const dashboardQueryOptions = queryOptions({
   queryKey: ["dashboard"],

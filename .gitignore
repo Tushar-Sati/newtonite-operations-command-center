@@ -15,6 +15,18 @@ dist-ssr
 .tanstack/**
 .nitro
 *.local
+.env
+.env.*
+!.env.example
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Virtual environments & Python cache
+.venv/
+__pycache__/
 
 # Wrangler / Cloudflare
 .wrangler/
