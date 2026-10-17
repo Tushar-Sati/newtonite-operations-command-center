@@ -10,33 +10,73 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ActivityRouteImport } from './routes/activity'
+import { Route as ApprovalsRouteImport } from './routes/approvals'
+import { Route as TeamsRouteImport } from './routes/teams'
+import { Route as WorkItemsRouteImport } from './routes/work-items'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ActivityRoute = ActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApprovalsRoute = ApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamsRoute = TeamsRouteImport.update({
+  id: '/teams',
+  path: '/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkItemsRoute = WorkItemsRouteImport.update({
+  id: '/work-items',
+  path: '/work-items',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/approvals': typeof ApprovalsRoute
+  '/teams': typeof TeamsRoute
+  '/work-items': typeof WorkItemsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/approvals': typeof ApprovalsRoute
+  '/teams': typeof TeamsRoute
+  '/work-items': typeof WorkItemsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/approvals': typeof ApprovalsRoute
+  '/teams': typeof TeamsRoute
+  '/work-items': typeof WorkItemsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/activity' | '/approvals' | '/teams' | '/work-items'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/activity' | '/approvals' | '/teams' | '/work-items'
+  id: '__root__' | '/' | '/activity' | '/approvals' | '/teams' | '/work-items'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActivityRoute: typeof ActivityRoute
+  ApprovalsRoute: typeof ApprovalsRoute
+  TeamsRoute: typeof TeamsRoute
+  WorkItemsRoute: typeof WorkItemsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +88,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/activity': {
+      id: '/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof ActivityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/approvals': {
+      id: '/approvals'
+      path: '/approvals'
+      fullPath: '/approvals'
+      preLoaderRoute: typeof ApprovalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teams': {
+      id: '/teams'
+      path: '/teams'
+      fullPath: '/teams'
+      preLoaderRoute: typeof TeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work-items': {
+      id: '/work-items'
+      path: '/work-items'
+      fullPath: '/work-items'
+      preLoaderRoute: typeof WorkItemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActivityRoute: ActivityRoute,
+  ApprovalsRoute: ApprovalsRoute,
+  TeamsRoute: TeamsRoute,
+  WorkItemsRoute: WorkItemsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

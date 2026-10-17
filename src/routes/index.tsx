@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(dashboardQueryOptions),
   pendingComponent: DashboardSkeleton,
-  errorComponent: ({ error }) => <DashboardError message={error.message} />,
+  errorComponent: ({ error }) => <DashboardError message={error instanceof Error ? error.message : "Unknown error"} />,
   component: Dashboard,
 });
 

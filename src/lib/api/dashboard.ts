@@ -5,7 +5,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { MOCK_DASHBOARD } from "./mock-data";
 import type { DashboardData } from "./types";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL as string | undefined;
+const API_BASE = import.meta.env["VITE_API_BASE_URL"] as string | undefined;
 
 export async function fetchDashboard(): Promise<DashboardData> {
   if (API_BASE) {
