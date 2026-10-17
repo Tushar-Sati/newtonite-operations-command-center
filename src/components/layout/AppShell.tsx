@@ -52,12 +52,12 @@ function Topbar({ onMenu }: { onMenu: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const title = NAV_ITEMS.find((n) => (n.to === "/" ? pathname === "/" : pathname.startsWith(n.to)))?.label ?? "Newtonite";
   return (
-    <header className="sticky top-0 z-20 grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/85 px-4 backdrop-blur md:px-6">
+    <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-background/85 px-4 backdrop-blur md:px-6">
       <Button variant="ghost" size="icon" className="md:hidden" onClick={onMenu} aria-label="Open navigation">
         <Menu className="h-4 w-4" />
       </Button>
-      <h1 className="truncate text-base font-semibold md:col-start-1">{title}</h1>
-      <div className="flex items-center gap-2">
+      <h1 className="min-w-0 flex-1 truncate text-base font-semibold">{title}</h1>
+      <div className="flex shrink-0 items-center gap-2">
         {/* Search entry point — not wired to a search backend yet */}
         <button
           type="button"
