@@ -1,12 +1,23 @@
 # Newtonite Operations Command Center
 
-An enterprise-style workspace for coordinating operational work, approvals, team capacity, and audit activity. The app combines a React command interface with a role-aware FastAPI service and a relational data model designed for versioned, concurrency-safe workflows.
+An enterprise-style workspace for coordinating operational work, approvals, team capacity, and audit activity. It combines a React and TanStack interface with a role-aware FastAPI service and a relational data model built for versioned, concurrency-safe workflows.
 
-> **Live demo:** [Operations Command Center](https://newtonite-operations-command-center.vercel.app) · [API health](https://newtonite-operations-api.vercel.app/health). The hosted workspace uses a persistent PostgreSQL database and synthetic demo records.
+**[Open the live command center](https://newtonite-operations-command-center.vercel.app)** · [API health](https://newtonite-operations-api.vercel.app/health) · [Interactive API docs](https://newtonite-operations-api.vercel.app/docs)
+
+The hosted workspace uses a persistent PostgreSQL database and synthetic demo records. You can sign in with one of the [demo accounts](#hosted-demo-login-credentials); their shared password is listed there. Demo data is shared and may be changed by other visitors.
+
+### Quick start
+
+For a complete local setup, follow [Run locally](#run-locally). In brief, start the FastAPI backend in one terminal and the Vite frontend in another, then open `http://localhost:5173`.
+
+- **Backend:** Python 3.11+, SQLite for local data, and the setup commands below.
+- **Frontend:** Node.js `^20.19.0` or `>=22.12.0`.
+- **Local sign-in:** choose a password for the seeded demo accounts with `NEWTONITE_DEMO_PASSWORD`; local passwords are separate from the hosted demo password.
 
 ## Contents
 
 - [What it does](#what-it-does)
+- [Quick start](#quick-start)
 - [Architecture](#architecture)
 - [Access and workflow model](#access-and-workflow-model)
 - [Run locally](#run-locally)
@@ -107,6 +118,8 @@ npm run dev -- --host localhost --port 5173
 ```
 
 Visit [http://localhost:5173](http://localhost:5173). The root `.env.example` points `VITE_API_BASE_URL` at `http://localhost:8000`. Do not put secrets in frontend environment variables; Vite variables are exposed to the browser bundle.
+
+Keep the API terminal running while using the frontend. To sign in locally, use one of the role IDs in [Local demo sign-in](#local-demo-sign-in) and the password you set before running the seed command.
 
 ## Demo dataset
 
