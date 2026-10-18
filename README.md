@@ -2,7 +2,7 @@
 
 An enterprise-style workspace for coordinating operational work, approvals, team capacity, and audit activity. The app combines a React command interface with a role-aware FastAPI service and a relational data model designed for versioned, concurrency-safe workflows.
 
-> **Live demo:** [Operations Command Center](https://newtonite-operations-command-center.vercel.app) · [API health](https://newtonite-operations-api.vercel.app/health). The hosted workspace uses a persistent PostgreSQL database and synthetic demo records. Demo passwords are shared separately with the project owner; they are not committed to this public repository.
+> **Live demo:** [Operations Command Center](https://newtonite-operations-command-center.vercel.app) · [API health](https://newtonite-operations-api.vercel.app/health). The hosted workspace uses a persistent PostgreSQL database and synthetic demo records.
 
 ## Contents
 
@@ -112,18 +112,22 @@ Visit [http://localhost:5173](http://localhost:5173). The root `.env.example` po
 
 `python -m app.dev_seed` generates deterministic, synthetic development data: seven operational teams, 78 synthetic accounts, 350 work items (50 per team), and 1,050 generated activity events. It is intended for local evaluation and is not real company or customer data. It refuses to seed production or a non-SQLite database.
 
-### Demo sign-in credentials
+### Hosted demo login credentials
 
-Use these email addresses on the login page after running the local seed command:
+Open the [live demo login page](https://newtonite-operations-command-center.vercel.app/login). Enter the email shown under **Login ID** in the email field and the value under **Password** in the password field. These are public credentials for synthetic demo accounts; the hosted workspace data is for demonstration and may be changed by other visitors.
 
-| Role | Login | Team access |
-| --- | --- | --- |
-| Manager | `newtonite-demo@example.com` | All seven teams |
-| Member | `member-demo@example.com` | Logistics Control |
-| Viewer | `viewer-demo@example.com` | Compliance |
-| Admin | `admin-demo@example.com` | Platform Reliability |
+| Role | Login ID (email field) | Password (password field) | Team access |
+| --- | --- | --- | --- |
+| Manager | `newtonite-demo@example.com` | `puhCAtG5fWRolIYzJteVGp4d3Xn-NOaC` | All seven teams |
+| Member | `member-demo@example.com` | `puhCAtG5fWRolIYzJteVGp4d3Xn-NOaC` | Logistics Control |
+| Viewer | `viewer-demo@example.com` | `puhCAtG5fWRolIYzJteVGp4d3Xn-NOaC` | Compliance |
+| Admin | `admin-demo@example.com` | `puhCAtG5fWRolIYzJteVGp4d3Xn-NOaC` | Platform Reliability |
 
-All four demo accounts use the same password in a given seeded database. Choose it locally by setting `NEWTONITE_DEMO_PASSWORD` before the first seed (12 or more characters), as shown in [Run locally](#1-start-the-api). If you leave it unset on an empty database, the seed creates a random password and prints it once; save it securely because it cannot be recovered from the database. On later seed runs, existing passwords are preserved unless you explicitly set `NEWTONITE_DEMO_PASSWORD` to rotate them. The hosted demo uses the same role email addresses, with its password shared separately with the project owner. Passwords are deliberately not published in this README. Treat local seeded data as disposable.
+All four hosted demo accounts currently share the password listed above. Treat these as demo-only credentials; do not reuse this password for any personal or production account.
+
+### Local demo sign-in
+
+For locally seeded accounts, the four email IDs are the same as in the table above, but the password is set independently for your local database. Set `NEWTONITE_DEMO_PASSWORD` before the first seed (12 or more characters), as shown in [Run locally](#1-start-the-api). If you leave it unset on an empty database, the seed creates a random password and prints it once; save it securely because it cannot be recovered from the database. On later seed runs, existing passwords are preserved unless you explicitly set `NEWTONITE_DEMO_PASSWORD` to rotate them. Treat local seeded data as disposable.
 
 ## API overview
 
