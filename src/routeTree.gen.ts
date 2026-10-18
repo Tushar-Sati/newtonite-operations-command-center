@@ -20,32 +20,32 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 const ActivityRoute = ActivityRouteImport.update({
   id: '/activity',
   path: '/activity',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/activity.lazy').then((d) => d.Route))
 const ApprovalsRoute = ApprovalsRouteImport.update({
   id: '/approvals',
   path: '/approvals',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/approvals.lazy').then((d) => d.Route))
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/login.lazy').then((d) => d.Route))
 const TeamsRoute = TeamsRouteImport.update({
   id: '/teams',
   path: '/teams',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/teams.lazy').then((d) => d.Route))
 const WorkItemsRoute = WorkItemsRouteImport.update({
   id: '/work-items',
   path: '/work-items',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/work-items.lazy').then((d) => d.Route))
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute

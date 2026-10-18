@@ -36,13 +36,14 @@ For a complete local setup, follow [Run locally](#run-locally). In brief, start 
 ## What it does
 
 - **Operations dashboard:** authorized workload, capacity, due-date risk, throughput, and recent activity.
-- **Operations Network:** lazy-loaded 3D team topology with a 2D fallback when WebGL is unavailable. Team placement is illustrative, not geographic.
+- **Operations Network:** 3D team topology that loads when it approaches the viewport, with a 2D fallback when WebGL is unavailable. Team placement is illustrative, not geographic.
 - **Work-item command board:** team-scoped queues with filtering, sorting, priority and due-date indicators, item history, claims, and version-aware edits.
 - **Approval queue:** eligible `in_review` work items with guarded manager/admin approval actions.
 - **Team coverage:** membership, capacity, workload, overdue, and bottleneck indicators.
 - **Activity audit:** team-scoped event history with actor, category, timestamp, and event ID filters.
 - **Secure sign-in:** API-issued short-lived bearer tokens; the backend checks current user status, team membership, and role on protected requests.
 - **Responsive interface:** designed for desktop operations views and smaller screens, with accessible form states and reduced-motion support.
+- **Fast navigation:** route screens are split into on-demand bundles, so the browser loads only the code needed for the current page. The heavier 3D network bundle is deferred until it is near view.
 
 ## Architecture
 
