@@ -112,7 +112,9 @@ Visit [http://localhost:5173](http://localhost:5173). The root `.env.example` po
 
 `python -m app.dev_seed` generates deterministic, synthetic development data: seven operational teams, 78 synthetic accounts, 350 work items (50 per team), and 1,050 generated activity events. It is intended for local evaluation and is not real company or customer data. It refuses to seed production or a non-SQLite database.
 
-The documented demo identities are:
+### Demo sign-in credentials
+
+Use these email addresses on the login page after running the local seed command:
 
 | Role | Login | Team access |
 | --- | --- | --- |
@@ -121,7 +123,7 @@ The documented demo identities are:
 | Viewer | `viewer-demo@example.com` | Compliance |
 | Admin | `admin-demo@example.com` | Platform Reliability |
 
-Passwords are deliberately not published in this README. Set `NEWTONITE_DEMO_PASSWORD` locally before the first seed, or use the one-time generated password printed by the seed command. Existing account passwords are preserved on reruns unless that variable is explicitly set. Treat the local database as disposable.
+All four demo accounts use the same password in a given seeded database. Choose it locally by setting `NEWTONITE_DEMO_PASSWORD` before the first seed (12 or more characters), as shown in [Run locally](#1-start-the-api). If you leave it unset on an empty database, the seed creates a random password and prints it once; save it securely because it cannot be recovered from the database. The password is intentionally not hard-coded or published here. On later seed runs, existing passwords are preserved unless you explicitly set `NEWTONITE_DEMO_PASSWORD` to rotate them. These credentials belong to your local development database and should not be assumed to work on a hosted deployment. Treat local seeded data as disposable.
 
 ## API overview
 
