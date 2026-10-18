@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("rounded-lg border border-border bg-card text-card-foreground shadow-panel", className)}
+      className={cn("command-panel rounded-xl border border-border text-card-foreground shadow-panel", className)}
       {...props}
     />
   );
@@ -14,8 +14,8 @@ export function CardHeader({ title, description, action }: { title: string; desc
   return (
     <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
       <div className="min-w-0">
-        <h2 className="truncate text-sm font-semibold">{title}</h2>
-        {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
+        <h2 className="truncate text-[13px] font-semibold tracking-wide">{title}</h2>
+        {description && <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{description}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>

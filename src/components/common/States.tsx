@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "./Button";
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded-md bg-muted", className)} />;
+  return <div aria-hidden="true" className={cn("loading-skeleton rounded-lg", className)} />;
 }
 
 export function EmptyState({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
-      <div className="grid h-10 w-10 place-items-center rounded-full bg-secondary text-muted-foreground">
+      <div className="grid h-11 w-11 place-items-center rounded-xl border border-border/70 bg-white/[0.025] text-muted-foreground">
         <Inbox className="h-5 w-5" />
       </div>
       <p className="text-sm font-medium">{title}</p>
@@ -22,8 +22,8 @@ export function EmptyState({ title, description, action }: { title: string; desc
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-6 py-12 text-center">
-      <AlertTriangle className="h-6 w-6 text-destructive" />
+    <div role="alert" className="flex flex-col items-center justify-center gap-3 rounded-xl border border-destructive/30 bg-destructive/[0.055] px-6 py-12 text-center shadow-[0_0_32px_-24px_var(--destructive)]">
+      <span className="grid h-11 w-11 place-items-center rounded-xl border border-destructive/20 bg-destructive/10"><AlertTriangle className="h-5 w-5 text-destructive" /></span>
       <div>
         <p className="text-sm font-medium">Couldn't load this data</p>
         <p className="mt-1 text-xs text-muted-foreground">{message}</p>

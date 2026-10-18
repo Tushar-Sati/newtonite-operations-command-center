@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getWorkItem, listWorkItems } from "./client";
+import { getWorkItem, listActivity, listWorkItems } from "./client";
 
 export const workItemsQueryOptions = (teamId: string, status: string, offset: number) => queryOptions({
   queryKey: ["work-items", teamId, status, offset],
@@ -11,4 +11,23 @@ export const workItemQueryOptions = (teamId: string, itemId: string) => queryOpt
   queryKey: ["work-item", teamId, itemId],
   queryFn: () => getWorkItem(teamId, itemId),
   enabled: Boolean(teamId && itemId),
+});
+
+export const teamNetworkWorkItemsQueryOptions = (teamId: string) => queryOptions({
+  queryKey: ["team-network-work-items", teamId],
+  queryFn: () => listWorkItems(teamId, { limit: 100, offset: 0 }),
+  enabled: Boolean(teamId),
+  staleTime: 30_000,
+});
+
+export const workItemsBoardQueryOptions = (teamId: string, offset: number) => queryOptions({
+  queryKey: ["work-items-board", teamId, offset],
+  queryFn: () => listWorkItems(teamId, { limit: 100, offset }),
+  enabled: Boolean(teamId),
+});
+
+export const workItemTimelineQueryOptions = (teamId: string) => queryOptions({
+  queryKey: ["activity", teamId, "work-item-timeline"],
+  queryFn: () => listActivity(teamId, { limit: 100, offset: 0 }),
+  enabled: Boolean(teamId),
 });

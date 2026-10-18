@@ -17,13 +17,15 @@ describe("live resource route integrations", () => {
     vi.stubEnv("VITE_API_BASE_URL", "http://api.test"); vi.resetModules();
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       if (String(input).endsWith("/teams")) return new Response(JSON.stringify([{ id: "team-1", name: "Platform", capacity: 8, role: "member", member_count: 1 }]), { status: 200 });
+      if (String(input).endsWith("/dashboard")) return new Response(JSON.stringify({ kpis: { open_items: 0, in_progress_items: 0, overdue_items: 0, pending_approvals: 0, deltas: { open: 0, in_progress: 0, overdue: 0, approvals: 0 } }, weekly: [], teams: [{ team_id: "team-1", team: "Platform", members: 1, open: 0, in_progress: 0, capacity: 8 }], activity: [], work_items: [] }), { status: 200 });
+      if (String(input).includes("/work-items?")) return new Response(JSON.stringify([]), { status: 200 });
       return new Response(JSON.stringify([{ user_id: "user-1", full_name: "Alex Member", role: "member" }]), { status: 200 });
     });
     vi.stubGlobal("fetch", fetchMock);
     const { TeamsPage } = await import("../routes/teams");
     const queryClient = setup();
     render(<QueryClientProvider client={queryClient}><TeamsPage /></QueryClientProvider>);
-    expect(await screen.findByText("Platform members")).toBeInTheDocument();
+    expect(await screen.findByText("Platform operations")).toBeInTheDocument();
     expect(await screen.findByText("Alex Member")).toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/teams/team-1/members"))).toBe(true);
     queryClient.clear();
@@ -42,6 +44,11 @@ describe("live resource route integrations", () => {
     expect(await screen.findByText("claimed work item")).toBeInTheDocument();
     expect(await screen.findByText("OPS-1 · Review shipment")).toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes("/teams/team-1/activity?limit=20&offset=0"))).toBe(true);
+    fireEvent.change(screen.getByLabelText("Filter event category"), { target: { value: "approved" } });
+    expect(await screen.findByText("No events match these filters")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Filter event category"), { target: { value: "claimed" } });
+    fireEvent.change(screen.getByLabelText("Filter actor"), { target: { value: "Alex" } });
+    expect(await screen.findByText("claimed work item")).toBeInTheDocument();
     queryClient.clear();
   });
 

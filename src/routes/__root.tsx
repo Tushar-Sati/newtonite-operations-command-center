@@ -81,11 +81,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Newtonite Operations" },
-      { name: "description", content: "Enterprise operations management platform." },
+      { title: "Newtonite Operations Command Center" },
+      { name: "description", content: "Coordinate critical work, approvals, team capacity and operational risk from the Newtonite Operations Command Center." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {

@@ -24,9 +24,9 @@ export function DataTable<T>({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[640px] text-sm">
         <thead>
-          <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+          <tr className="border-b border-border/80 bg-background/25 text-left font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
             {columns.map((c) => (
-              <th key={c.key} className={cn("px-4 py-2.5 font-medium", c.className)}>
+              <th key={c.key} className={cn("px-4 py-3 font-medium", c.className)}>
                 {c.header}
               </th>
             ))}
@@ -34,7 +34,7 @@ export function DataTable<T>({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={rowKey(row)} className="border-b border-border/60 transition-colors last:border-0 hover:bg-secondary/50">
+            <tr key={rowKey(row)} className="border-b border-border/50 transition-colors duration-150 last:border-0 hover:bg-white/[0.035]">
               {columns.map((c) => (
                 <td key={c.key} className={cn("whitespace-nowrap px-4 py-3 align-middle", c.className)}>
                   {c.cell(row)}

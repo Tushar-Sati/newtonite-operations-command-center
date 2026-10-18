@@ -28,12 +28,14 @@ $env:APP_ENV = "development"
 $env:DATABASE_URL = "sqlite:///./newtonite.db"
 $env:JWT_SECRET_KEY = (py -c "import secrets; print(secrets.token_urlsafe(48))")
 $env:CORS_ORIGINS = "http://localhost:5173"
+$seedPassword = Read-Host "Set a local demo password (12+ characters)" -AsSecureString
+$env:NEWTONITE_DEMO_PASSWORD = [System.Net.NetworkCredential]::new("", $seedPassword).Password
 alembic upgrade head
 python -m app.dev_seed
 uvicorn app.main:app --reload
 ```
 
-The explicit seed command is development-only, refuses non-development or non-SQLite configuration, and is safe to rerun. Local demo credentials printed by the command are `newtonite-demo@example.com` / `DemoNewtonite2026!`. They are for disposable local data only. Never use them outside local development. For PostgreSQL, use `postgresql+psycopg://user:password@host:5432/database`; never commit `.env` or any real secret. The JWT secret above is randomly generated for this shell session.
+The explicit seed command is development-only, refuses non-development or non-SQLite configuration, and is safe to rerun. It creates seven operational teams, 78 synthetic accounts, 350 operational work items (50 per team), and 1,050 generated activity events (three per item), plus the pre-existing private isolation fixture. Logistics Control and Workforce Planning model steadier, lower-risk queues; Incident Response, Customer Escalations, and Payments Operations have overdue work; Platform Reliability and Compliance surface blocked or approval queues. Demo accounts: Manager `newtonite-demo@example.com` (all seven teams), Member `member-demo@example.com` (Logistics Control), Viewer `viewer-demo@example.com` (Compliance), and Admin `admin-demo@example.com` (Platform Reliability). Set `$env:NEWTONITE_DEMO_PASSWORD` to a local password of at least 12 characters before the first seed; the value is not printed or committed. If omitted on an empty database, one randomly generated password is printed once for newly created accounts. Existing passwords are preserved unless the environment variable is explicitly set. Use disposable local data only. For PostgreSQL, use `postgresql+psycopg://user:password@host:5432/database`; never commit `.env` or any real secret. The JWT secret above is randomly generated for this shell session.
 
 ### Frontend (separate PowerShell window)
 
