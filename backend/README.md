@@ -51,6 +51,36 @@ The root `.env.example` points to the local API at `http://localhost:8000`. Run 
 
 The frontend reads `VITE_API_BASE_URL` (copy the repository `.env.example` to `.env.local`). Configure `CORS_ORIGINS` as a comma-separated list of exact browser origins, including the frontend development origin. The default allows `http://localhost:5173` without cookies; bearer authorization is sent in the `Authorization` header.
 
+## Vercel deployment and hosted demo
+
+The production frontend is [newtonite-operations-command-center.vercel.app](https://newtonite-operations-command-center.vercel.app); the API is [newtonite-operations-api.vercel.app](https://newtonite-operations-api.vercel.app). The API project uses `server.py` as its FastAPI entrypoint and `requirements.txt` for runtime dependencies. Set these production environment variables on the API project:
+
+- `DATABASE_URL`: persistent PostgreSQL connection string (the app normalizes `postgresql://` to the installed psycopg 3 driver).
+- `APP_ENV=production`.
+- `JWT_SECRET_KEY`: private random secret of at least 32 characters.
+- `CORS_ORIGINS=https://newtonite-operations-command-center.vercel.app` (add only exact trusted frontend origins).
+
+Deploy the API from the repository root with `vercel deploy --prod --cwd backend`. Set `VITE_API_BASE_URL=https://newtonite-operations-api.vercel.app` on the frontend project, then redeploy the frontend so Vite includes the API origin in its production bundle.
+
+### One-time production demo bootstrap
+
+The local `app.dev_seed` remains SQLite-only. For a new, empty production PostgreSQL database, use this guarded one-time bootstrap to create the synthetic demo tenant and its users, items, and activity history. It refuses any non-production environment, non-PostgreSQL database, missing confirmation, missing password, or database that already contains teams, users, work items, or activity records.
+
+From `backend/`, after connecting the PostgreSQL integration to the Vercel API project and pulling its production environment into the ignored `.env.production` file:
+
+```powershell
+vercel env pull .env.production --environment production
+$env:DATABASE_URL = (py -3.11 -c "from dotenv import dotenv_values; print(dotenv_values('.env.production')['DATABASE_URL_UNPOOLED'])")
+$env:APP_ENV = "production"
+alembic upgrade head
+$env:NEWTONITE_CONFIRM_PRODUCTION_DEMO_SEED = "YES"
+$seedPassword = Read-Host "Set the hosted demo password (12+ characters)" -AsSecureString
+$env:NEWTONITE_DEMO_PASSWORD = [System.Net.NetworkCredential]::new("", $seedPassword).Password
+python -m app.production_demo_seed
+```
+
+All demo accounts share the password supplied for this one-time seed. Save it securely and share it only with people who need demo access. The seed does not print the password. The production database contains synthetic demonstration records only; never run this bootstrap against a database with real operational data. Remove the temporary shell variables when finished.
+
 The frontend stores its short-lived bearer token in `sessionStorage`. This limits persistence to the browser tab session, but any JavaScript running on the origin can read it; an XSS flaw could steal the token. The backend remains the authorization boundary and rechecks the active user and team role on every request. Production hardening should add a strict Content Security Policy and consider an HttpOnly, Secure, SameSite cookie or a backend-for-frontend session design. This milestone keeps the existing bearer-token contract to avoid changing the frontend/backend authentication behavior during integration.
 
 ## API and authorization

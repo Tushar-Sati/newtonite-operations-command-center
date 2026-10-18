@@ -2,7 +2,7 @@
 
 An enterprise-style workspace for coordinating operational work, approvals, team capacity, and audit activity. The app combines a React command interface with a role-aware FastAPI service and a relational data model designed for versioned, concurrency-safe workflows.
 
-> **Project status:** this repository contains a runnable local development setup. A production deployment needs a hosted API, persistent PostgreSQL database, production secrets, and matching CORS configuration. No public deployment URL is claimed here.
+> **Live demo:** [Operations Command Center](https://newtonite-operations-command-center.vercel.app) · [API health](https://newtonite-operations-api.vercel.app/health). The hosted workspace uses a persistent PostgreSQL database and synthetic demo records. Demo passwords are shared separately with the project owner; they are not committed to this public repository.
 
 ## Contents
 
@@ -123,7 +123,7 @@ Use these email addresses on the login page after running the local seed command
 | Viewer | `viewer-demo@example.com` | Compliance |
 | Admin | `admin-demo@example.com` | Platform Reliability |
 
-All four demo accounts use the same password in a given seeded database. Choose it locally by setting `NEWTONITE_DEMO_PASSWORD` before the first seed (12 or more characters), as shown in [Run locally](#1-start-the-api). If you leave it unset on an empty database, the seed creates a random password and prints it once; save it securely because it cannot be recovered from the database. The password is intentionally not hard-coded or published here. On later seed runs, existing passwords are preserved unless you explicitly set `NEWTONITE_DEMO_PASSWORD` to rotate them. These credentials belong to your local development database and should not be assumed to work on a hosted deployment. Treat local seeded data as disposable.
+All four demo accounts use the same password in a given seeded database. Choose it locally by setting `NEWTONITE_DEMO_PASSWORD` before the first seed (12 or more characters), as shown in [Run locally](#1-start-the-api). If you leave it unset on an empty database, the seed creates a random password and prints it once; save it securely because it cannot be recovered from the database. On later seed runs, existing passwords are preserved unless you explicitly set `NEWTONITE_DEMO_PASSWORD` to rotate them. The hosted demo uses the same role email addresses, with its password shared separately with the project owner. Passwords are deliberately not published in this README. Treat local seeded data as disposable.
 
 ## API overview
 
@@ -160,9 +160,9 @@ The regular backend suite uses SQLite. PostgreSQL concurrency behavior is only v
 
 ## Deployment
 
-Deploy the frontend and API as separate services. Configure the frontend's `VITE_API_BASE_URL` to the public API origin. Configure the API with a persistent PostgreSQL `DATABASE_URL`, a strong private `JWT_SECRET_KEY`, and `CORS_ORIGINS` containing the exact deployed frontend origin(s). Apply Alembic migrations before serving traffic. Never run the development seed against production data.
+The live frontend and API are deployed as separate Vercel projects. Configure the frontend's `VITE_API_BASE_URL` to the public API origin. Configure the API with a persistent PostgreSQL `DATABASE_URL`, a strong private `JWT_SECRET_KEY`, and `CORS_ORIGINS` containing the exact deployed frontend origin(s). Apply Alembic migrations before serving traffic. Use the one-time, empty-database production demo bootstrap documented in [backend/README.md](backend/README.md); never run the development seed against production data.
 
-The repository has Vercel project configuration for the web app and API, but deployment requires provisioned production PostgreSQL and production environment variables. Do not treat a successful frontend build as proof that API-backed sign-in and workflows are operational.
+The FastAPI service is deployed from `backend/` with Vercel's Python runtime. Verify `/health` and a demo sign-in after deployments; a successful frontend build alone does not prove that API-backed workflows are operational.
 
 ## Project layout
 

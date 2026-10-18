@@ -10,7 +10,7 @@ import secrets
 from datetime import date, datetime, time, timedelta, timezone
 from uuid import NAMESPACE_URL, uuid5
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.config import get_settings
 from app.database import SessionLocal
@@ -73,14 +73,24 @@ def _upsert_membership(db, user: User, team: Team, role: TeamRole) -> None:
         membership.role = role
 
 
-def seed() -> None:
+def seed(*, production_demo: bool = False) -> None:
     settings = get_settings()
-    if settings.app_env.lower() != "development":
-        raise SystemExit("Refusing to seed: APP_ENV must be development")
-    if not settings.database_url.startswith("sqlite:"):
-        raise SystemExit("Refusing to seed: the development seed only supports SQLite")
-
     configured_password = os.environ.get("NEWTONITE_DEMO_PASSWORD")
+    if production_demo:
+        if settings.app_env.lower() != "production":
+            raise SystemExit("Refusing production demo seed: APP_ENV must be production")
+        if not settings.database_url.startswith(("postgresql:", "postgresql+")):
+            raise SystemExit("Refusing production demo seed: DATABASE_URL must use PostgreSQL")
+        if os.environ.get("NEWTONITE_CONFIRM_PRODUCTION_DEMO_SEED") != "YES":
+            raise SystemExit("Set NEWTONITE_CONFIRM_PRODUCTION_DEMO_SEED=YES to confirm the empty production database seed")
+        if not configured_password or len(configured_password) < 12:
+            raise SystemExit("Set NEWTONITE_DEMO_PASSWORD to a private password of at least 12 characters")
+    else:
+        if settings.app_env.lower() != "development":
+            raise SystemExit("Refusing to seed: APP_ENV must be development")
+        if not settings.database_url.startswith("sqlite:"):
+            raise SystemExit("Refusing to seed: the development seed only supports SQLite")
+
     if configured_password and len(configured_password) < 12:
         raise SystemExit("NEWTONITE_DEMO_PASSWORD must be at least 12 characters")
     generated_password: str | None = None
@@ -89,9 +99,17 @@ def seed() -> None:
     anchor = datetime.combine(today, time(12), tzinfo=timezone.utc)
 
     with SessionLocal.begin() as db:
+        if production_demo:
+            existing_count = sum(
+                db.scalar(select(func.count()).select_from(model)) or 0
+                for model in (Team, User, WorkItem, ActivityRecord)
+            )
+            if existing_count:
+                raise SystemExit("Refusing production demo seed: database must contain no teams, users, work items, or activity")
+
         teams: list[Team] = []
         for team_index, (name, capacity, _) in enumerate(TEAM_SPECS):
-            team = db.scalar(select(Team).where(Team.name == name))
+            team = None if production_demo else db.scalar(select(Team).where(Team.name == name))
             # Upgrade the original local demo tenant in place so its IDs, memberships,
             # and sample work remain intact.
             if team is None and name == "Incident Response":
@@ -101,14 +119,19 @@ def seed() -> None:
             if team is None:
                 team = Team(id=stable_id(f"team:{name}"), name=name, capacity=capacity, created_at=anchor - timedelta(days=120 + team_index))
                 db.add(team)
-                db.flush()
+                if not production_demo:
+                    db.flush()
             team.capacity = capacity
             teams.append(team)
+        if production_demo:
+            db.flush()
 
-        private_team = db.scalar(select(Team).where(Team.name == "Newtonite Private Demo Team"))
-        if private_team is None:
-            private_team = Team(id=stable_id("team:Newtonite Private Demo Team"), name="Newtonite Private Demo Team", capacity=4)
-            db.add(private_team)
+        private_team = None
+        if not production_demo:
+            private_team = db.scalar(select(Team).where(Team.name == "Newtonite Private Demo Team"))
+            if private_team is None:
+                private_team = Team(id=stable_id("team:Newtonite Private Demo Team"), name="Newtonite Private Demo Team", capacity=4)
+                db.add(private_team)
 
         # (email, display name, role, team indexes); 78 synthetic demo accounts.
         profiles: list[tuple[str, str, TeamRole, tuple[int, ...]]] = [
@@ -138,7 +161,7 @@ def seed() -> None:
 
         users: dict[str, User] = {}
         for profile_index, (email, full_name, role, team_indexes) in enumerate(profiles):
-            user = db.scalar(select(User).where(User.email == email))
+            user = None if production_demo else db.scalar(select(User).where(User.email == email))
             if user is None:
                 password = configured_password
                 if password is None:
@@ -147,7 +170,8 @@ def seed() -> None:
                 user = User(id=stable_id(f"user:{email}"), email=email, full_name=full_name, password_hash=hash_password(password),
                             is_active=True, created_at=anchor - timedelta(days=90 + profile_index))
                 db.add(user)
-                db.flush()
+                if not production_demo:
+                    db.flush()
                 created_user_count += 1
             else:
                 user.full_name = full_name
@@ -156,15 +180,23 @@ def seed() -> None:
                     user.password_hash = hash_password(configured_password)
             users[email] = user
             allowed_team_ids = {teams[index].id for index in team_indexes}
-            existing_memberships = db.scalars(select(TeamMembership).where(
-                TeamMembership.user_id == user.id,
-                TeamMembership.team_id.in_([team.id for team in teams]),
-            )).all()
-            for membership in existing_memberships:
-                if membership.team_id not in allowed_team_ids:
-                    db.delete(membership)
+            if not production_demo:
+                existing_memberships = db.scalars(select(TeamMembership).where(
+                    TeamMembership.user_id == user.id,
+                    TeamMembership.team_id.in_([team.id for team in teams]),
+                )).all()
+                for membership in existing_memberships:
+                    if membership.team_id not in allowed_team_ids:
+                        db.delete(membership)
             for team_index in team_indexes:
-                _upsert_membership(db, user, teams[team_index], role)
+                if production_demo:
+                    team = teams[team_index]
+                    db.add(TeamMembership(id=stable_id(f"membership:{user.email}:{team.name}"), user_id=user.id, team_id=team.id, role=role))
+                else:
+                    _upsert_membership(db, user, teams[team_index], role)
+
+        if production_demo:
+            db.flush()
 
         # Keep team-local member pools useful for assignment and activity attribution.
         members_by_team: list[list[User]] = [[] for _ in teams]
@@ -173,6 +205,7 @@ def seed() -> None:
         managers_by_team = [users[DEMO_EMAIL]] + [users[f"{('logistics','customer','platform','compliance','payments','workforce')[i-1]}-lead@example.com"] for i in range(1, 7)]
 
         item_count = 0
+        production_activity_events: list[ActivityRecord] = []
         for team_index, ((team_name, _, prefix), team) in enumerate(zip(TEAM_SPECS, teams)):
             generated = 0
             for status, count in zip(STATUSES, STATUS_COUNTS[team_index]):
@@ -205,13 +238,14 @@ def seed() -> None:
                     # Three deterministic audit events per item yield 1,050 records.
                     item_created = anchor - timedelta(days=5 + (item_number * 3 + team_index * 5) % 35, hours=(item_number * 2) % 12)
                     item_updated = item_created + timedelta(hours=2 + item_number % 30)
-                    item = db.scalar(select(WorkItem).where(WorkItem.key == key))
+                    item = None if production_demo else db.scalar(select(WorkItem).where(WorkItem.key == key))
                     if item is None:
                         item = WorkItem(id=stable_id(f"work-item:{key}"), key=key, title=title, description=description, team_id=team.id,
                                         assignee_id=assignee.id if assignee else None, status=status, priority=priority, due_date=due_date,
                                         created_at=item_created, updated_at=item_updated, version=1)
                         db.add(item)
-                        db.flush()
+                        if not production_demo:
+                            db.flush()
                     else:
                         item.title, item.description, item.team_id = title, description, team.id
                         item.assignee_id = assignee.id if assignee else None
@@ -221,11 +255,12 @@ def seed() -> None:
 
                     # Remove the original seed's one generic event for these three
                     # legacy keys; the detailed stable events below replace it.
-                    for legacy_event in db.scalars(select(ActivityRecord).where(
-                        ActivityRecord.work_item_id == item.id,
-                        ActivityRecord.action == "seeded development sample",
-                    )).all():
-                        db.delete(legacy_event)
+                    if not production_demo:
+                        for legacy_event in db.scalars(select(ActivityRecord).where(
+                            ActivityRecord.work_item_id == item.id,
+                            ActivityRecord.action == "seeded development sample",
+                        )).all():
+                            db.delete(legacy_event)
 
                     actor = pool[(item_number + 1) % len(pool)]
                     if item_number % 4 == 0:
@@ -250,26 +285,38 @@ def seed() -> None:
                     event_specs.append((final_action, key, final_kind, final_actor, item_updated))
                     for event_index, (action, target, kind, event_actor, occurred_at) in enumerate(event_specs):
                         event_id = stable_id(f"activity:{key}:{event_index}")
-                        event = db.get(ActivityRecord, event_id)
+                        event = None if production_demo else db.get(ActivityRecord, event_id)
                         values = dict(team_id=team.id, actor_id=event_actor.id, work_item_id=item.id, action=action,
                                       target=target[:240], kind=kind, occurred_at=occurred_at)
                         if event is None:
-                            db.add(ActivityRecord(id=event_id, **values))
+                            event_record = ActivityRecord(id=event_id, **values)
+                            if production_demo:
+                                production_activity_events.append(event_record)
+                            else:
+                                db.add(event_record)
                         else:
                             for field, value in values.items():
                                 setattr(event, field, value)
 
+        if production_demo:
+            db.flush()
+            db.add_all(production_activity_events)
+
         # Retain the old private fixture solely for isolation checks; never link it
         # to a demo login or include it in the seven operational team nodes.
-        private = db.scalar(select(WorkItem).where(WorkItem.key == "PRIV-001"))
-        if private is None:
-            private = WorkItem(id=stable_id("work-item:PRIV-001"), key="PRIV-001", title="Private isolation fixture", description="Hidden development-only access-boundary check.",
-                               team_id=private_team.id, assignee_id=None, status=WorkItemStatus.OPEN, priority=Priority.LOW, due_date=today + timedelta(days=14))
-            db.add(private)
+        if private_team is not None:
+            private = db.scalar(select(WorkItem).where(WorkItem.key == "PRIV-001"))
+            if private is None:
+                private = WorkItem(id=stable_id("work-item:PRIV-001"), key="PRIV-001", title="Private isolation fixture", description="Hidden development-only access-boundary check.",
+                                   team_id=private_team.id, assignee_id=None, status=WorkItemStatus.OPEN, priority=Priority.LOW, due_date=today + timedelta(days=14))
+                db.add(private)
 
-    print(f"Development fixtures ready: {len(teams)} operational teams, {len(profiles)} demo accounts, {item_count} operational work items, {item_count * 3} deterministic activity events.")
+    environment_label = "Production demo" if production_demo else "Development"
+    print(f"{environment_label} fixtures ready: {len(teams)} operational teams, {len(profiles)} demo accounts, {item_count} operational work items, {item_count * 3} deterministic activity events.")
     print(f"Manager: {DEMO_EMAIL}; Member: {MEMBER_EMAIL}; Viewer: {VIEWER_EMAIL}; Admin: {ADMIN_EMAIL}")
-    if configured_password:
+    if production_demo:
+        print("The configured demo password was applied; its value is not displayed.")
+    elif configured_password:
         print("Configured demo password was applied; its value is not displayed.")
     elif generated_password and created_user_count:
         print("One-time generated password for newly created demo accounts (store securely):")
