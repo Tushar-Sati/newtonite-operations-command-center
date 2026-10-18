@@ -2,7 +2,7 @@
 
 An enterprise operations platform integrating a React / TanStack frontend with a FastAPI / SQLAlchemy backend, featuring team-scoped access control, optimistic concurrency, idempotent workflows, and audited activity streams.
 
-Architectural details, security boundaries, and concurrency decisions are documented in [ENGINEERING_DECISIONS.md](file:///c:/Users/Tusha_wpsqzqk/Documents/newtonite-ops/pixel-perfect-match-5734/ENGINEERING_DECISIONS.md).
+Architectural details, security boundaries, and concurrency decisions are documented in [ENGINEERING_DECISIONS.md](ENGINEERING_DECISIONS.md).
 
 ---
 
@@ -81,7 +81,7 @@ cd backend
 python -m pytest -v
 ```
 - Runs 20 unit and isolation tests covering authentication, team isolation, idempotency replay, workflow transitions, rollback atomicity, and simultaneous SQLite claim races.
-- *PostgreSQL Concurrency:* The marked test `tests/test_postgres_concurrency.py` requires a live PostgreSQL instance and is automatically skipped unless `TEST_DATABASE_URL` is set (see [ENGINEERING_DECISIONS.md](file:///c:/Users/Tusha_wpsqzqk/Documents/newtonite-ops/pixel-perfect-match-5734/ENGINEERING_DECISIONS.md)).
+- *PostgreSQL Concurrency:* The marked test `tests/test_postgres_concurrency.py` requires a live PostgreSQL instance and is automatically skipped unless `TEST_DATABASE_URL` is set (see [ENGINEERING_DECISIONS.md](ENGINEERING_DECISIONS.md)).
 
 ### Frontend Test Suite
 ```powershell
