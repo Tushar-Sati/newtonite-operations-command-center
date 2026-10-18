@@ -2,7 +2,7 @@
 
 Newtonite Operations is an operations command center for teams coordinating work, approvals, capacity, and risk. The dashboard surfaces current workload and decisions that need attention; team-scoped views let operators act on work and review an auditable history.
 
-Architectural details and concurrency decisions are documented in [ENGINEERING_DECISIONS.md](ENGINEERING_DECISIONS.md).
+Architectural details, security boundaries, and concurrency decisions are documented in [ENGINEERING_DECISIONS.md](ENGINEERING_DECISIONS.md).
 
 ## Product experience
 
@@ -79,7 +79,6 @@ Backend tests:
 cd backend
 python -m pytest -v
 ```
-
 The regular backend suite uses SQLite. PostgreSQL concurrency is not verified unless the PostgreSQL integration test is configured and actually runs against PostgreSQL; see [backend/README.md](backend/README.md#postgresql-integration-verification) for the exact setup.
 
 ## Repository structure
