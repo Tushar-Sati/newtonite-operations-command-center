@@ -1,8 +1,12 @@
+<p align="center">
+  <img src="docs/assets/operations-command-center-banner.svg" alt="Newtonite Operations Command Center - a dimensional dashboard connected to a glowing operations network" width="100%" />
+</p>
+
 # Newtonite Operations Command Center
 
 An enterprise-style workspace for coordinating operational work, approvals, team capacity, and audit activity. It combines a React and TanStack interface with a role-aware FastAPI service and a relational data model built for versioned, concurrency-safe workflows.
 
-**[Open the live command center](https://newtonite-operations-command-center.vercel.app)** · [API health](https://newtonite-operations-api.vercel.app/health) · [Interactive API docs](https://newtonite-operations-api.vercel.app/docs)
+**[Open the live command center](https://newtonite-operations-command-center.vercel.app)** | [API health](https://newtonite-operations-api.vercel.app/health) | [Interactive API docs](https://newtonite-operations-api.vercel.app/docs)
 
 The hosted workspace uses a persistent PostgreSQL database and synthetic demo records. You can sign in with one of the [demo accounts](#hosted-demo-login-credentials); their shared password is listed there. Demo data is shared and may be changed by other visitors.
 

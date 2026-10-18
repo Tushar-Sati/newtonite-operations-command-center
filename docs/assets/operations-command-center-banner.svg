@@ -1,0 +1,73 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" fill="none" role="img" aria-labelledby="title description">
+  <title id="title">Newtonite Operations Command Center</title>
+  <desc id="description">A dimensional dark navy operations dashboard connected to a glowing cyan and amber network.</desc>
+  <defs>
+    <linearGradient id="bg" x1="68" y1="20" x2="1120" y2="408" gradientUnits="userSpaceOnUse"><stop stop-color="#101d2b"/><stop offset=".56" stop-color="#09121d"/><stop offset="1" stop-color="#111923"/></linearGradient>
+    <linearGradient id="panel" x1="615" y1="102" x2="1070" y2="348" gradientUnits="userSpaceOnUse"><stop stop-color="#182a39"/><stop offset="1" stop-color="#0b151f"/></linearGradient>
+    <linearGradient id="edge" x1="620" y1="118" x2="1050" y2="355" gradientUnits="userSpaceOnUse"><stop stop-color="#6be7ef" stop-opacity=".82"/><stop offset="1" stop-color="#397c9a" stop-opacity=".22"/></linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4de6ee"/><stop offset="1" stop-color="#16a9c8"/></linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(300 0 0 210 855 220)" gradientUnits="userSpaceOnUse"><stop stop-color="#00c8dc" stop-opacity=".18"/><stop offset="1" stop-color="#00c8dc" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0v36" stroke="#a9d8ea" stroke-opacity=".045"/></pattern>
+    <filter id="shadow" x="540" y="70" width="650" height="340" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feGaussianBlur in="SourceAlpha" stdDeviation="17"/><feOffset dy="13"/><feColorMatrix values="0 0 0 0 0.01 0 0 0 0 0.04 0 0 0 0 0.08 0 0 0 .54 0"/><feBlend in2="SourceGraphic" result="shadow"/><feComposite in="shadow" in2="SourceAlpha" operator="out"/><feBlend in="SourceGraphic"/></filter>
+  </defs>
+  <rect width="1200" height="420" rx="24" fill="url(#bg)"/>
+  <rect width="1200" height="420" rx="24" fill="url(#grid)"/>
+  <circle cx="858" cy="220" r="280" fill="url(#glow)"/>
+  <path d="M0 330C185 306 291 373 467 340s240-54 376-10 212 54 357 8" stroke="#48cfe0" stroke-opacity=".11"/>
+  <path d="M0 350C185 326 291 393 467 360s240-54 376-10 212 54 357 8" stroke="#48cfe0" stroke-opacity=".07"/>
+  <g font-family="Segoe UI,Arial,sans-serif">
+    <rect x="64" y="54" width="35" height="35" rx="11" fill="#083342" stroke="#0aa8bd" stroke-opacity=".65"/>
+    <path d="m72 72 5-1 4-10 5 20 4-10h6" stroke="url(#cyan)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="110" y="68" fill="#e4f2f8" font-size="12" font-weight="700" letter-spacing="2">NEWTONITE</text>
+    <text x="110" y="84" fill="#7fb3c8" font-size="9" letter-spacing="2.2">OPERATIONS</text>
+    <rect x="64" y="130" width="9" height="9" rx="4.5" fill="#49dce5"/>
+    <text x="84" y="139" fill="#63d9e5" font-size="11" letter-spacing="2.4">OPERATIONS COMMAND CENTER</text>
+    <text x="64" y="204" fill="#f0f6f9" font-size="43" font-weight="700" letter-spacing="-1.4">Coordinate critical work.</text>
+    <text x="64" y="254" fill="#9fb7c9" font-size="43" font-weight="700" letter-spacing="-1.4">Keep operations moving.</text>
+    <text x="66" y="296" fill="#b1c4d1" font-size="16">One secure workspace for incidents, approvals,</text>
+    <text x="66" y="320" fill="#b1c4d1" font-size="16">and the operational work that keeps teams moving.</text>
+    <rect x="64" y="354" width="145" height="30" rx="15" fill="#122d38" stroke="#2b8894" stroke-opacity=".6"/>
+    <circle cx="82" cy="369" r="4" fill="#58d6b5"/>
+    <text x="94" y="373" fill="#c2e6e8" font-size="10" letter-spacing="1.2">ROLE-AWARE ACCESS</text>
+    <rect x="220" y="354" width="130" height="30" rx="15" fill="#29251b" stroke="#99713a" stroke-opacity=".55"/>
+    <circle cx="238" cy="369" r="4" fill="#f1b94e"/>
+    <text x="250" y="373" fill="#ead6a9" font-size="10" letter-spacing="1.2">AUDITABLE WORK</text>
+  </g>
+  <!-- Floating dimensional dashboard panel -->
+  <g filter="url(#shadow)">
+    <path d="m645 103 382-33 113 57-383 39-112-63Z" fill="#263c4d" stroke="#5ad9e5" stroke-opacity=".45"/>
+    <path d="M645 103v202l112 61V166l-112-63Z" fill="#10202d" stroke="#477486" stroke-opacity=".6"/>
+    <path d="m757 166 383-39v184l-383 55V166Z" fill="url(#panel)" stroke="url(#edge)"/>
+    <path d="m757 166 383-39v30l-383 41v-32Z" fill="#1b3040"/>
+    <circle cx="778" cy="181" r="3" fill="#4ee1ea"/><circle cx="790" cy="180" r="3" fill="#f1b94e"/><circle cx="802" cy="178" r="3" fill="#ec6d72"/>
+    <text x="824" y="180" fill="#9cc2d3" font-family="Segoe UI,Arial,sans-serif" font-size="9" letter-spacing="1.4">OPERATIONS OVERVIEW</text>
+    <!-- metric cards -->
+    <path d="m786 207 99-10 28 14-100 11-27-15Z" fill="#163747" stroke="#45cbd9" stroke-opacity=".42"/>
+    <path d="m813 222 100-11v47l-100 13v-49Z" fill="#101d29" stroke="#45cbd9" stroke-opacity=".32"/>
+    <text x="825" y="238" fill="#83aebf" font-family="Segoe UI,Arial,sans-serif" font-size="8">SYSTEM STATUS</text>
+    <circle cx="830" cy="251" r="3" fill="#52d9b0"/>
+    <text x="839" y="255" fill="#d4f4e9" font-family="Segoe UI,Arial,sans-serif" font-size="10" font-weight="600">Operational</text>
+
+    <path d="m921 193 95-10 29 14-96 11-28-15Z" fill="#27343b" stroke="#e3b34f" stroke-opacity=".46"/>
+    <path d="m949 208 96-11v47l-96 13v-49Z" fill="#171d23" stroke="#d2a846" stroke-opacity=".3"/>
+    <text x="960" y="224" fill="#9babb5" font-family="Segoe UI,Arial,sans-serif" font-size="8">NEEDS ATTENTION</text>
+    <text x="961" y="244" fill="#f1c264" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="700">Review queue</text>
+    <!-- work list -->
+    <path d="m786 275 259-30 33 18-260 32-32-20Z" fill="#152633" stroke="#3a6476" stroke-opacity=".65"/>
+    <path d="m818 295 260-31v41l-260 34v-44Z" fill="#101a24" stroke="#3a6476" stroke-opacity=".52"/>
+    <circle cx="837" cy="308" r="8" fill="#103844"/><path d="m834 308 2 2 4-5" stroke="#59dce5" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="853" y="307" fill="#d5e5eb" font-family="Segoe UI,Arial,sans-serif" font-size="9" font-weight="600">Incident queue updated</text>
+    <text x="853" y="320" fill="#7699aa" font-family="Segoe UI,Arial,sans-serif" font-size="8">Team response · audit recorded</text>
+    <path d="m818 339 260-34v30l-260 35v-31Z" fill="#121e28" stroke="#3a6476" stroke-opacity=".37"/>
+    <circle cx="837" cy="350" r="7" fill="#302718"/><path d="M837 346v5m0 3v.1" stroke="#f0bd55" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="853" y="348" fill="#c5d5dd" font-family="Segoe UI,Arial,sans-serif" font-size="9">Approval requires review</text>
+    <text x="853" y="361" fill="#768e9b" font-family="Segoe UI,Arial,sans-serif" font-size="8">Manager action · version checked</text>
+  </g>
+  <!-- network nodes and links -->
+  <g stroke="#51cbdc" stroke-opacity=".48" fill="none">
+    <path d="m594 116 48-8 33 37m-81-29 30 65m18-73 52 8m-100 65 33 27"/>
+    <path d="m592 273 43-23 34 27m-77-4 21 36m56-32 36 14" stroke="#e6b44d" stroke-opacity=".52"/>
+  </g>
+  <g><circle cx="594" cy="116" r="5" fill="#56d8e3"/><circle cx="642" cy="108" r="4" fill="#f0b951"/><circle cx="675" cy="145" r="4" fill="#54d4df"/><circle cx="624" cy="181" r="4" fill="#54d4df"/><circle cx="657" cy="202" r="3" fill="#e7b44e"/><circle cx="592" cy="273" r="5" fill="#e7b44e"/><circle cx="635" cy="250" r="3.5" fill="#55d9e2"/><circle cx="669" cy="277" r="4" fill="#55d9e2"/><circle cx="613" cy="309" r="3" fill="#55d9e2"/></g>
+  <path d="M24 1h1152a23 23 0 0 1 23 23v372a23 23 0 0 1-23 23H24a23 23 0 0 1-23-23V24A23 23 0 0 1 24 1Z" stroke="#7ed9e5" stroke-opacity=".22"/>
+</svg>
