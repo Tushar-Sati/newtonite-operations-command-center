@@ -1,34 +1,81 @@
 # Newtonite Operations Command Center
 
-Newtonite Operations is an operations command center for teams coordinating work, approvals, capacity, and risk. The dashboard surfaces current workload and decisions that need attention; team-scoped views let operators act on work and review an auditable history.
+An enterprise-style workspace for coordinating operational work, approvals, team capacity, and audit activity. The app combines a React command interface with a role-aware FastAPI service and a relational data model designed for versioned, concurrency-safe workflows.
 
-Architectural details, security boundaries, and concurrency decisions are documented in [ENGINEERING_DECISIONS.md](ENGINEERING_DECISIONS.md).
+> **Project status:** this repository contains a runnable local development setup. A production deployment needs a hosted API, persistent PostgreSQL database, production secrets, and matching CORS configuration. No public deployment URL is claimed here.
 
-## Product experience
+## Contents
 
-- **Operations dashboard:** API-backed workload metrics, weekly throughput, team capacity, and recent activity.
-- **Global Operations Network:** a lazy-loaded 3D topology of authorized teams, with workload signals and team details. Positions are illustrative because the API does not supply site coordinates. A 2D fallback is provided when WebGL is unavailable.
-- **Work-item command board:** status lanes, priority and due-date risk, filtering, sorting, claims, detail history, and version-aware edits.
-- **Approval decision queue:** manager/admin approval actions for eligible `in_review` items, prioritized by priority and age.
-- **Team coverage:** membership, capacity, workload, bottleneck and overdue indicators.
-- **Activity audit view:** team-scoped events with actor, category, timestamp, and event ID filters.
-- **Authentication and access:** bearer-token login with server-side role and team-membership checks.
+- [What it does](#what-it-does)
+- [Architecture](#architecture)
+- [Access and workflow model](#access-and-workflow-model)
+- [Run locally](#run-locally)
+- [Demo dataset](#demo-dataset)
+- [API overview](#api-overview)
+- [Checks](#checks)
+- [Deployment](#deployment)
+- [Project layout](#project-layout)
+- [Security and known boundaries](#security-and-known-boundaries)
+- [Engineering notes](#engineering-notes)
 
-> **Data boundaries:** workload and event information comes from the configured API. Team throughput is only available as a global series in the current API. Network positions are not geographic locations, and the approval resource only returns in-review items.
+## What it does
 
-## Screenshots and recordings
+- **Operations dashboard:** authorized workload, capacity, due-date risk, throughput, and recent activity.
+- **Operations Network:** lazy-loaded 3D team topology with a 2D fallback when WebGL is unavailable. Team placement is illustrative, not geographic.
+- **Work-item command board:** team-scoped queues with filtering, sorting, priority and due-date indicators, item history, claims, and version-aware edits.
+- **Approval queue:** eligible `in_review` work items with guarded manager/admin approval actions.
+- **Team coverage:** membership, capacity, workload, overdue, and bottleneck indicators.
+- **Activity audit:** team-scoped event history with actor, category, timestamp, and event ID filters.
+- **Secure sign-in:** API-issued short-lived bearer tokens; the backend checks current user status, team membership, and role on protected requests.
+- **Responsive interface:** designed for desktop operations views and smaller screens, with accessible form states and reduced-motion support.
 
-Add captures from a locally running, authenticated session here. No deployment URL or sample capture is implied.
+## Architecture
 
-- Dashboard screenshot placeholder
-- Work-item board screenshot placeholder
-- Operator workflow recording placeholder (GIF/video)
+```mermaid
+flowchart LR
+  Browser[React and TanStack UI]
+  Queries[src/lib/api query options]
+  Auth[src/lib/auth session and route guards]
+  API[FastAPI API]
+  Access[Role and team access checks]
+  ORM[SQLAlchemy and Alembic]
+  DB[(SQLite local / PostgreSQL deployment)]
 
-## Local development (Windows PowerShell)
+  Browser --> Queries
+  Browser --> Auth
+  Queries -->|HTTP + bearer token| API
+  Auth -->|login and session requests| API
+  API --> Access
+  API --> ORM
+  ORM --> DB
+```
 
-Run the backend and frontend in separate PowerShell windows. Python 3.11+ and Node.js `^20.19.0` or `>=22.12.0` are required by the current toolchain.
+UI components consume data through `src/lib/api/*` query options. This keeps the UI independent of whether the API is backed by local SQLite or a deployed PostgreSQL database. Authentication, membership scoping, workflow validation, and writes are enforced by the backend.
 
-### Backend
+## Access and workflow model
+
+Roles are assigned per team membership. Every protected API request checks the active account and the requested team's membership.
+
+| Role | Read team data | Work-item writes | Approve `in_review` work |
+| --- | --- | --- | --- |
+| Admin | Yes | Yes | Yes |
+| Manager | Yes | Yes | Yes |
+| Member | Yes | Yes | No |
+| Viewer | Yes | No | No |
+
+The work-item workflow is `open → in_progress → in_review → done`, with supported transitions to and from `blocked` as documented by the API. Updates carry an `expected_version`; claims use a conditional database update; create requests carry an idempotency key. Successful item changes and their activity events are committed together. Stale edits, invalid transitions, duplicate claims, and conflicting idempotency keys return conflict errors instead of silently overwriting data.
+
+## Run locally
+
+### Requirements
+
+- Node.js `^20.19.0` or `>=22.12.0`
+- Python 3.11+
+- PowerShell examples below; adapt activation and environment-variable commands for your shell
+
+### 1. Start the API
+
+In a PowerShell window:
 
 ```powershell
 cd backend
@@ -47,11 +94,11 @@ python -m app.dev_seed
 python -m uvicorn app.main:app --reload --port 8000
 ```
 
-The seed is a deliberate, deterministic, development-only command. It refuses non-development and non-SQLite configuration and is safe to rerun. It creates seven operational teams, 78 synthetic accounts, 350 operational work items (50 per team), and 1,050 generated activity events. Demo logins are `newtonite-demo@example.com` (manager, all seven teams), `member-demo@example.com` (member, Logistics Control), `viewer-demo@example.com` (viewer, Compliance), and `admin-demo@example.com` (admin, Platform Reliability). Before the first seed, set `$env:NEWTONITE_DEMO_PASSWORD` to a local password of at least 12 characters; it is never printed or committed. If unset on a fresh database, the seed generates and prints a one-time password. Existing account passwords are preserved unless the variable is explicitly set. Use disposable local data only. The database file is ignored by Git.
+Set `NEWTONITE_DEMO_PASSWORD` to a local password of at least 12 characters before the first seed, as shown above. If it is unset on a fresh database, the seed generates and prints a one-time password. Keep it private. Existing account passwords are preserved on reruns unless the variable is explicitly set. The seed is restricted to development with SQLite; it refuses other configurations.
 
-### Frontend
+### 2. Start the frontend
 
-In another PowerShell window, from the repository root:
+In a second PowerShell window, from the repository root:
 
 ```powershell
 if (!(Test-Path .env.local)) { Copy-Item .env.example .env.local }
@@ -59,42 +106,83 @@ npm install
 npm run dev -- --host localhost --port 5173
 ```
 
-Open `http://localhost:5173` and use the development credentials printed by the seed command. The frontend reads `VITE_API_BASE_URL` from `.env.local`; the example points to the local API. Keep real secrets out of both environment templates and source control.
+Visit [http://localhost:5173](http://localhost:5173). The root `.env.example` points `VITE_API_BASE_URL` at `http://localhost:8000`. Do not put secrets in frontend environment variables; Vite variables are exposed to the browser bundle.
 
-## Validation
+## Demo dataset
 
-Run from the repository root unless noted:
+`python -m app.dev_seed` generates deterministic, synthetic development data: seven operational teams, 78 synthetic accounts, 350 work items (50 per team), and 1,050 generated activity events. It is intended for local evaluation and is not real company or customer data. It refuses to seed production or a non-SQLite database.
+
+The documented demo identities are:
+
+| Role | Login | Team access |
+| --- | --- | --- |
+| Manager | `newtonite-demo@example.com` | All seven teams |
+| Member | `member-demo@example.com` | Logistics Control |
+| Viewer | `viewer-demo@example.com` | Compliance |
+| Admin | `admin-demo@example.com` | Platform Reliability |
+
+Passwords are deliberately not published in this README. Set `NEWTONITE_DEMO_PASSWORD` locally before the first seed, or use the one-time generated password printed by the seed command. Existing account passwords are preserved on reruns unless that variable is explicitly set. Treat the local database as disposable.
+
+## API overview
+
+All protected endpoints use `Authorization: Bearer <token>`. See [backend/README.md](backend/README.md) for request and response details, error codes, authorization rules, and PostgreSQL integration verification.
+
+| Area | Routes |
+| --- | --- |
+| Health and identity | `GET /health`, `POST /auth/login`, `GET /auth/me` |
+| Dashboard and teams | `GET /dashboard`, `GET /teams`, `GET /teams/{team_id}/members` |
+| Work items | `GET/POST /teams/{team_id}/work-items`, `GET/PATCH /teams/{team_id}/work-items/{item_id}`, `POST .../claim` |
+| Approvals | `GET /teams/{team_id}/approvals`, `POST /teams/{team_id}/approvals/{item_id}/approve` |
+| Activity | `GET /teams/{team_id}/activity` |
+
+Mutating work-item routes use version checks and/or idempotency protections as appropriate. Approval status changes and their audit event are transactional.
+
+## Checks
+
+From the repository root:
 
 ```powershell
 npx tsc --noEmit
 npm test
 npm run lint
 npm run build
-git diff --check
 ```
 
-Backend tests:
+From `backend/`:
 
 ```powershell
-cd backend
 python -m pytest -v
 ```
-The regular backend suite uses SQLite. PostgreSQL concurrency is not verified unless the PostgreSQL integration test is configured and actually runs against PostgreSQL; see [backend/README.md](backend/README.md#postgresql-integration-verification) for the exact setup.
 
-## Repository structure
+The regular backend suite uses SQLite. PostgreSQL concurrency behavior is only verified when the PostgreSQL integration test is configured and run against a disposable PostgreSQL database; see [PostgreSQL integration verification](backend/README.md#postgresql-integration-verification).
+
+## Deployment
+
+Deploy the frontend and API as separate services. Configure the frontend's `VITE_API_BASE_URL` to the public API origin. Configure the API with a persistent PostgreSQL `DATABASE_URL`, a strong private `JWT_SECRET_KEY`, and `CORS_ORIGINS` containing the exact deployed frontend origin(s). Apply Alembic migrations before serving traffic. Never run the development seed against production data.
+
+The repository has Vercel project configuration for the web app and API, but deployment requires provisioned production PostgreSQL and production environment variables. Do not treat a successful frontend build as proof that API-backed sign-in and workflows are operational.
+
+## Project layout
 
 ```text
-backend/                  FastAPI app, SQLAlchemy models, Alembic migrations, pytest suite
-src/components/           Shared UI, dashboard widgets, and operations network scene
-src/lib/api/              Validated API client, response schemas, and TanStack Query options
-src/lib/auth/             Login, session restoration, expiry handling, and route authorization
-src/lib/ops/              Workflow filtering, sorting, risk, and transition helpers
-src/routes/               Dashboard, work items, approvals, teams, activity, and login
+backend/                  FastAPI service, models, migrations, and backend tests
+src/components/           Shared UI, dashboard widgets, and operations network
+src/lib/api/              API client, schemas, and TanStack Query options
+src/lib/auth/             Login, session restoration, expiry, and route access
+src/lib/ops/              Workflow filtering, sorting, risk, and transitions
+src/routes/               Login, dashboard, work items, approvals, teams, activity
 src/test/                 Frontend API and route interaction tests
+ENGINEERING_DECISIONS.md  Security, access, and concurrency decisions
 ```
 
-## Security and current limitations
+## Security and known boundaries
 
-The browser keeps the short-lived bearer token in `sessionStorage`; scripts on the same origin can access it, so an XSS vulnerability could expose the token. Backend endpoints remain the authorization boundary and recheck user, team membership, and role. A production deployment should use a reviewed CSP and consider an HttpOnly, Secure, SameSite cookie or backend-for-frontend session architecture.
+- The browser stores its short-lived bearer token in `sessionStorage`. JavaScript executing on the same origin can access it. Production deployments should use a reviewed Content Security Policy and evaluate an HttpOnly, Secure, SameSite cookie or backend-for-frontend session design.
+- The backend is the authorization boundary; frontend route guards improve navigation but do not replace API checks.
+- The API currently provides throughput as a global series, not per-team history. Network positions are illustrative and are not site coordinates.
+- The approval resource represents `in_review` items; there is no separate approval table or blocked-approval endpoint.
+- The seeded status snapshot is synthetic demonstration data, not live operational telemetry.
 
-No geographic coordinates, team-attributed throughput series, or blocked-approval endpoint are currently available. The interface labels those boundaries rather than inferring missing data.
+## Engineering notes
+
+See [ENGINEERING_DECISIONS.md](ENGINEERING_DECISIONS.md) for the design record covering role and team scoping, versioned updates, atomic claims, idempotent creates, transactional activity records, and the authentication contract.
